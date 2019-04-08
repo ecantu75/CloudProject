@@ -1,0 +1,48 @@
+# Jupyther Notebook for AWS SageMaker
+
+# Lambda function
+import os
+import io
+import boto3
+import json
+#import csv
+#import pandas 
+#import numpy as np
+
+# grab environment variables
+ENDPOINT_NAME = os.environ['ENDPOINT_NAME']
+runtime= boto3.client('runtime.sagemaker')
+
+def lambda_handler(event, context):
+    print("Received event: " + json.dumps(event, indent=2))
+    
+   
+    #data = json.loads(json.dumps(event))
+    json_obj = json.loads(json.dumps(event))
+    payload_file = io.StringIO()
+    #f = open(payload_file, "w+")
+    testLoad= "20,7560,5,6,1958,1965,504,0,525,1029,1339,0,0,1339,0,0,1,0,3,1,6,0,1,294,0,0,0,0,0,0,0,5,2009" + "\n" + "20,7560,5,6,1958,1965,504,0,525,1029,1339,0,0,1339,0,0,1,0,3,1,6,0,1,294,0,0,0,0,0,0,0,5,2009"
+    for predData in json_obj:
+        payload_file.write("%s \n" % predData['data'])
+    
+    #f.close()
+    
+    #X_test[:2].to_csv(payload_file, header = None, index = None)
+    
+    #print(payload)
+    
+    response = runtime.invoke_endpoint(EndpointName=ENDPOINT_NAME,
+                                       ContentType='text/csv',
+                                       Body=testLoad
+                                       )
+                                       
+    #print(predictor.predict(X_test.values))
+    #print(y_test.values)                                   
+    
+    #print(response)
+    #result = json.loads(response['Body'].read().decode())
+    #print(result)
+    #pred = int(result['predictions'][0]['predicted_label'])
+    #predicted_label = 'M' if pred == 1 else 'B'
+    
+    return response
